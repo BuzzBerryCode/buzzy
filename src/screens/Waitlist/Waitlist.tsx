@@ -45,6 +45,15 @@ export const Waitlist = (): React.ReactElement | null => {
       }
       return;
     }
+    // Send confirmation email via Resend
+    await fetch('/api/send-waitlist-email', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: formData.email,
+        companyName: formData.companyName,
+      }),
+    });
     setIsSubmitted(true);
   };
 
