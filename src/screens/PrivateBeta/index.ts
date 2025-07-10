@@ -1,0 +1,1 @@
+export { PrivateBeta } from "./PrivateBeta";

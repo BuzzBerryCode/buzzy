@@ -1,0 +1,1 @@
+export { WaitlistSuccess } from "./WaitlistSuccess";
