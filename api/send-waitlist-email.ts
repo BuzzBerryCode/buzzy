@@ -10,7 +10,7 @@ export default async function handler(req, res) {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Buzzberry <hey@buzzberry.io>', // Your verified sender
+      from: 'Buzzberry <hey@buzzberry.io>',
       to: [email],
       subject: 'Thanks for joining the Buzzberry waitlist!',
       html: `
