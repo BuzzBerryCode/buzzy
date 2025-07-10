@@ -5,10 +5,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const { email, companyName } = req.body;
 
-  // Use global fetch (Node 18+) or require('node-fetch') if needed
-  const fetchFn = typeof fetch !== 'undefined' ? fetch : (await import('node-fetch')).default;
-
-  const response = await fetchFn('https://api.resend.com/emails', {
+  const response = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${process.env.RESEND_API_KEY}`,
