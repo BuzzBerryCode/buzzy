@@ -40,8 +40,10 @@ export const PrivateBeta = (): React.ReactElement | null => {
     navigate('/');
   };
 
-  const handleInvitationSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleInvitationSubmit = async (e: React.FormEvent | React.MouseEvent) => {
+    e.preventDefault?.();
+    e.stopPropagation?.();
+    console.log('handleInvitationSubmit called', { invitationCode });
     setError(null);
     setLoading(true);
     // Validate invitation code
@@ -260,7 +262,14 @@ export const PrivateBeta = (): React.ReactElement | null => {
                     </div>
                     {!!error && <div className="text-red-500 text-xs mb-2 text-center">{error}</div>}
                     {/* Continue button */}
-                    <Button type="submit" className="w-full h-[47px] bg-[#d266a3] hover:bg-[#c15594] rounded-lg font-medium text-white text-base transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl" disabled={loading}>
+                    <Button
+                      type="submit"
+                      onClick={e => {
+                        if (!loading) handleInvitationSubmit(e);
+                      }}
+                      className="w-full h-[47px] bg-[#d266a3] hover:bg-[#c15594] rounded-lg font-medium text-white text-base transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
+                      disabled={loading}
+                    >
                       {loading ? 'Loading...' : 'Continue'}
                     </Button>
                     {/* Divider */}
