@@ -244,23 +244,25 @@ export const PrivateBeta = (): React.ReactElement | null => {
                   </div>
 
                   {/* Form section */}
-                  <div className="space-y-6">
+                  <form onSubmit={handleInvitationSubmit} className="space-y-6">
                     {/* Invitation Code field */}
                     <div className="space-y-2">
                       <label className="font-medium text-[#1e1e1e] text-xs block">
                         Invitation Code
                       </label>
                       <Input
+                        value={invitationCode}
+                        onChange={e => setInvitationCode(e.target.value)}
                         placeholder="Please enter your invitation code"
                         className="h-[46px] px-3 py-2 bg-[#f0f0f0] rounded-lg border border-[#ebebeb] font-medium text-base focus:ring-2 focus:ring-[#d266a3] focus:border-transparent transition-all"
+                        required
                       />
                     </div>
-
+                    {!!error && <div className="text-red-500 text-xs mb-2 text-center">{error}</div>}
                     {/* Continue button */}
-                    <Button className="w-full h-[47px] bg-[#d266a3] hover:bg-[#c15594] rounded-lg font-medium text-white text-base transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl">
-                      Continue
+                    <Button type="submit" className="w-full h-[47px] bg-[#d266a3] hover:bg-[#c15594] rounded-lg font-medium text-white text-base transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl" disabled={loading}>
+                      {loading ? 'Loading...' : 'Continue'}
                     </Button>
-
                     {/* Divider */}
                     <div className="flex items-center justify-center gap-4">
                       <Separator className="flex-1" />
@@ -269,7 +271,6 @@ export const PrivateBeta = (): React.ReactElement | null => {
                       </span>
                       <Separator className="flex-1" />
                     </div>
-
                     {/* Join Waitlist button */}
                     <Button
                       onClick={handleJoinWaitlist}
@@ -280,17 +281,17 @@ export const PrivateBeta = (): React.ReactElement | null => {
                         Join Waitlist
                       </span>
                     </Button>
-
                     {/* Log Out link */}
                     <div className="text-center">
                       <button
                         onClick={handleLogout}
                         className="font-medium text-[#959595] text-sm hover:text-[#d266a3] transition-colors underline"
+                        type="button"
                       >
                         Log Out
                       </button>
                     </div>
-                  </div>
+                  </form>
                 </CardContent>
               </Card>
             </div>
