@@ -79,7 +79,8 @@ export const PrivateBeta = (): React.ReactElement | null => {
   return (
     <div className="min-h-screen w-full bg-white">
       {/* Mobile Layout - Video Background with Content Overlay */}
-      <div className="lg:hidden h-screen w-full relative overflow-hidden bg-black">
+      <div className="h-screen w-full relative overflow-hidden bg-black">
+        <div style={{position: 'absolute', top: 0, left: 0, zIndex: 100, background: 'rgba(255,255,255,0.8)', width: '100%', textAlign: 'center', fontWeight: 'bold'}}>MOBILE FORM</div>
         {/* Video Background */}
         <div className="absolute inset-0 w-full h-full">
           <MobileVideoBackground />
@@ -174,7 +175,8 @@ export const PrivateBeta = (): React.ReactElement | null => {
       </div>
 
       {/* Desktop Layout */}
-      <div className="hidden lg:block h-screen w-full">
+      <div className="h-screen w-full">
+        <div style={{position: 'absolute', top: 0, left: 0, zIndex: 100, background: 'rgba(0,0,0,0.1)', width: '100%', textAlign: 'center', fontWeight: 'bold', color: '#d266a3'}}>DESKTOP FORM</div>
         <div className="h-screen w-full flex">
           {/* Left panel with gradient and speech bubble */}
           <div className="flex-[1.2] h-full bg-gradient-to-br from-purple-400 to-indigo-500 relative overflow-hidden">
@@ -206,7 +208,7 @@ export const PrivateBeta = (): React.ReactElement | null => {
 
           {/* Right panel - Login section */}
           <div className="flex-1 h-full flex items-center justify-center p-8">
-            <div className="w-full max-w-md">
+            <div className="w-full max-w-md" style={{ zIndex: 10, position: 'relative' }}>
               <Card className="w-full bg-white border-none shadow-none">
                 <CardContent className="p-0 space-y-8">
                   {/* Logo and headline section */}
@@ -246,7 +248,7 @@ export const PrivateBeta = (): React.ReactElement | null => {
                   </div>
 
                   {/* Form section */}
-                  <form onSubmit={handleInvitationSubmit} className="space-y-6">
+                  <form onSubmit={e => { console.log('DESKTOP FORM SUBMIT'); handleInvitationSubmit(e); }} className="space-y-6">
                     {/* Invitation Code field */}
                     <div className="space-y-2">
                       <label className="font-medium text-[#1e1e1e] text-xs block">
@@ -264,9 +266,6 @@ export const PrivateBeta = (): React.ReactElement | null => {
                     {/* Continue button */}
                     <Button
                       type="submit"
-                      onClick={e => {
-                        if (!loading) handleInvitationSubmit(e);
-                      }}
                       className="w-full h-[47px] bg-[#d266a3] hover:bg-[#c15594] rounded-lg font-medium text-white text-base transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
                       disabled={loading}
                     >
