@@ -40,10 +40,8 @@ export const PrivateBeta = (): React.ReactElement | null => {
     navigate('/');
   };
 
-  const handleInvitationSubmit = async (e: React.FormEvent | React.MouseEvent) => {
-    e.preventDefault?.();
-    e.stopPropagation?.();
-    console.log('handleInvitationSubmit called', { invitationCode });
+  const handleInvitationSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     setError(null);
     setLoading(true);
     // Validate invitation code
@@ -79,8 +77,7 @@ export const PrivateBeta = (): React.ReactElement | null => {
   return (
     <div className="min-h-screen w-full bg-white">
       {/* Mobile Layout - Video Background with Content Overlay */}
-      <div className="h-screen w-full relative overflow-hidden bg-black">
-        <div style={{position: 'absolute', top: 0, left: 0, zIndex: 100, background: 'rgba(255,255,255,0.8)', width: '100%', textAlign: 'center', fontWeight: 'bold'}}>MOBILE FORM</div>
+      <div className="lg:hidden h-screen w-full relative overflow-hidden bg-black">
         {/* Video Background */}
         <div className="absolute inset-0 w-full h-full">
           <MobileVideoBackground />
@@ -175,8 +172,7 @@ export const PrivateBeta = (): React.ReactElement | null => {
       </div>
 
       {/* Desktop Layout */}
-      <div className="h-screen w-full">
-        <div style={{position: 'absolute', top: 0, left: 0, zIndex: 100, background: 'rgba(0,0,0,0.1)', width: '100%', textAlign: 'center', fontWeight: 'bold', color: '#d266a3'}}>DESKTOP FORM</div>
+      <div className="hidden lg:block h-screen w-full">
         <div className="h-screen w-full flex">
           {/* Left panel with gradient and speech bubble */}
           <div className="flex-[1.2] h-full bg-gradient-to-br from-purple-400 to-indigo-500 relative overflow-hidden">
@@ -248,7 +244,7 @@ export const PrivateBeta = (): React.ReactElement | null => {
                   </div>
 
                   {/* Form section */}
-                  <form onSubmit={e => { console.log('DESKTOP FORM SUBMIT'); handleInvitationSubmit(e); }} className="space-y-6">
+                  <form onSubmit={handleInvitationSubmit} className="space-y-6">
                     {/* Invitation Code field */}
                     <div className="space-y-2">
                       <label className="font-medium text-[#1e1e1e] text-xs block">
