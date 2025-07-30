@@ -1,1 +1,0 @@
-export { Waitlist } from "./Waitlist";
