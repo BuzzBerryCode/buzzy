@@ -115,7 +115,7 @@ export default function Waitlist(): React.ReactElement | null {
                   placeholder="Email"
                   value={formData.email}
                   onChange={(e) => handleInputChange('email', e.target.value)}
-                  className="h-11 text-sm"
+                  className="h-11 text-sm border-gray-300 focus:border-gray-400"
                 />
               </div>
               
@@ -125,7 +125,7 @@ export default function Waitlist(): React.ReactElement | null {
                   placeholder="Company Name"
                   value={formData.companyName}
                   onChange={(e) => handleInputChange('companyName', e.target.value)}
-                  className="h-11 text-sm"
+                  className="h-11 text-sm border-gray-300 focus:border-gray-400"
                 />
               </div>
               
@@ -135,7 +135,7 @@ export default function Waitlist(): React.ReactElement | null {
                   placeholder="Website URL"
                   value={formData.websiteUrl}
                   onChange={(e) => handleInputChange('websiteUrl', e.target.value)}
-                  className="h-11 text-sm"
+                  className="h-11 text-sm border-gray-300 focus:border-gray-400"
                 />
               </div>
               
@@ -145,7 +145,7 @@ export default function Waitlist(): React.ReactElement | null {
                   placeholder="Position"
                   value={formData.position}
                   onChange={(e) => handleInputChange('position', e.target.value)}
-                  className="h-11 text-sm"
+                  className="h-11 text-sm border-gray-300 focus:border-gray-400"
                 />
               </div>
               
@@ -175,42 +175,9 @@ export default function Waitlist(): React.ReactElement | null {
       
       {/* Desktop Layout - Split Screen */}
       <div className="hidden lg:flex h-screen w-full">
-        {/* Left Side - Video Background */}
+        {/* Left Side - Video Background Only */}
         <div className="w-1/2 h-full relative overflow-hidden bg-black">
           <VideoBackground />
-          
-          {/* Content Overlay */}
-          <div className="absolute inset-0 h-full flex flex-col justify-center items-center p-12" style={{ zIndex: 10 }}>
-            {/* Logo */}
-            <div className="flex justify-center mb-8">
-              <div className="inline-flex items-center gap-3">
-                <div 
-                  className="w-12 h-12 rounded-xl bg-cover bg-center bg-no-repeat shadow-lg flex-shrink-0"
-                  style={{
-                    backgroundImage: `url(/BuzzberryIcon.png)`
-                  }}
-                />
-                <img
-                  className="w-[120px] h-6 object-contain"
-                  src="/buzzberry-black-logo-4--1.png"
-                  alt="BuzzBerry"
-                />
-              </div>
-            </div>
-            
-            {/* Tagline */}
-            <div className="text-center text-white mb-8">
-              <h1 className="text-4xl font-bold mb-4">Join the Waitlist</h1>
-              <p className="text-xl text-white/80">Be among the first to experience the future of social networking</p>
-            </div>
-            
-            {/* Features */}
-            <div className="text-center text-white/70 space-y-2">
-              <p>🎯 Early access to new features</p>
-              <p>🚀 Priority support and updates</p>
-              <p>💎 Exclusive beta testing opportunities</p>
-            </div>
-          </div>
         </div>
         
         {/* Right Side - Waitlist Form */}
@@ -230,7 +197,7 @@ export default function Waitlist(): React.ReactElement | null {
                       placeholder="Email"
                       value={formData.email}
                       onChange={(e) => handleInputChange('email', e.target.value)}
-                      className="h-12 text-base"
+                      className="h-12 text-base border-gray-300 focus:border-gray-400"
                     />
                   </div>
                   
@@ -240,7 +207,7 @@ export default function Waitlist(): React.ReactElement | null {
                       placeholder="Company Name"
                       value={formData.companyName}
                       onChange={(e) => handleInputChange('companyName', e.target.value)}
-                      className="h-12 text-base"
+                      className="h-12 text-base border-gray-300 focus:border-gray-400"
                     />
                   </div>
                   
@@ -250,7 +217,7 @@ export default function Waitlist(): React.ReactElement | null {
                       placeholder="Website URL"
                       value={formData.websiteUrl}
                       onChange={(e) => handleInputChange('websiteUrl', e.target.value)}
-                      className="h-12 text-base"
+                      className="h-12 text-base border-gray-300 focus:border-gray-400"
                     />
                   </div>
                   
@@ -260,7 +227,7 @@ export default function Waitlist(): React.ReactElement | null {
                       placeholder="Position"
                       value={formData.position}
                       onChange={(e) => handleInputChange('position', e.target.value)}
-                      className="h-12 text-base"
+                      className="h-12 text-base border-gray-300 focus:border-gray-400"
                     />
                   </div>
                   
