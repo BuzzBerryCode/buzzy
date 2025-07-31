@@ -1,8 +1,3 @@
 {
-  "/page": "app/page.js",
-  "/private-beta/page": "app/private-beta/page.js",
-  "/onboarding/page": "app/onboarding/page.js",
-  "/dashboard/discover/page": "app/dashboard/discover/page.js",
-  "/dashboard/lists/page": "app/dashboard/lists/page.js",
-  "/dashboard/ai-search/page": "app/dashboard/ai-search/page.js"
+  "/dashboard/discover/page": "app/dashboard/discover/page.js"
 }

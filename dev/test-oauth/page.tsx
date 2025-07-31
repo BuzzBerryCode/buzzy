@@ -30,10 +30,14 @@ export default function TestOAuth() {
   }, []);
 
   const handleGoogleSignIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({ 
+    const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: 'http://localhost:3000/oauth-handler'
+        redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || window.location.origin}/oauth-handler`,
+        queryParams: {
+          access_type: 'offline',
+          prompt: 'consent',
+        }
       }
     });
     

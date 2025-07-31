@@ -9,8 +9,9 @@ export async function GET(request: NextRequest) {
   const accessToken = params.get('access_token');
   const refreshToken = params.get('refresh_token');
   
-  // Redirect to localhost with the tokens
-  const redirectUrl = new URL('http://localhost:3000/auth/callback');
+  // Use environment variable for redirect URL or fallback to request origin
+  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || request.nextUrl.origin;
+  const redirectUrl = new URL('/auth/callback', baseUrl);
   redirectUrl.searchParams.set('access_token', accessToken || '');
   redirectUrl.searchParams.set('refresh_token', refreshToken || '');
   

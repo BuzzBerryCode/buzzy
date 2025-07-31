@@ -28,11 +28,14 @@ export default function Frame(): React.ReactElement | null {
       // Check if we're returning from OAuth (URL has hash fragment)
       const hash = window.location.hash.substring(1);
       if (hash) {
+        console.log('OAuth redirect detected, processing tokens...');
         setIsOAuthProcessing(true);
         const params = new URLSearchParams(hash);
         
         const accessToken = params.get('access_token');
         const refreshToken = params.get('refresh_token');
+        
+        console.log('Tokens found:', { accessToken: !!accessToken, refreshToken: !!refreshToken });
         
         if (accessToken && refreshToken) {
           try {
@@ -49,9 +52,14 @@ export default function Frame(): React.ReactElement | null {
               return;
             }
 
+            console.log('Session set successfully');
+
             // Get user and check invitation code/onboarding status
             const { data: { user } } = await supabase.auth.getUser();
+            console.log('User data:', user);
+            
             if (user) {
+              console.log('Checking invitation code for email:', user.email);
               const { data: codeData } = await supabase
                 .from('invitation_codes')
                 .select('*')
@@ -59,7 +67,10 @@ export default function Frame(): React.ReactElement | null {
                 .eq('used', true)
                 .maybeSingle();
 
+              console.log('Invitation code data:', codeData);
+
               if (codeData) {
+                console.log('User has validated invitation code, checking onboarding...');
                 // Check if user has completed onboarding
                 const { data: onboardingData } = await supabase
                   .from('onboarding_data')
@@ -67,15 +78,21 @@ export default function Frame(): React.ReactElement | null {
                   .eq('user_id', user.id)
                   .maybeSingle();
 
+                console.log('Onboarding data:', onboardingData);
+
                 if (onboardingData) {
+                  console.log('User has completed onboarding, redirecting to dashboard');
                   router.push('/dashboard');
                 } else {
+                  console.log('User needs to complete onboarding, redirecting to onboarding');
                   router.push('/onboarding');
                 }
               } else {
+                console.log('User does not have validated invitation code, redirecting to private-beta');
                 router.push('/private-beta');
               }
             } else {
+              console.error('No user found after OAuth');
               setError('Authentication failed. Please try again.');
               setIsOAuthProcessing(false);
             }
@@ -85,6 +102,7 @@ export default function Frame(): React.ReactElement | null {
             setIsOAuthProcessing(false);
           }
         } else {
+          console.error('No tokens found in OAuth redirect');
           setError('Authentication failed. Please try again.');
           setIsOAuthProcessing(false);
         }
@@ -107,6 +125,8 @@ export default function Frame(): React.ReactElement | null {
         setLoading(false);
         return;
       }
+      console.log('Starting email/password authentication for:', formData.email);
+      
       // Try sign in first
       let userEmail = formData.email;
       let userSession = null;
@@ -115,6 +135,7 @@ export default function Frame(): React.ReactElement | null {
         password: formData.password,
       });
       if (signInError) {
+        console.log('Sign in failed, trying sign up:', signInError.message);
         // If user not found, try sign up
         if (signInError.message.toLowerCase().includes('invalid login credentials')) {
           const { error: signUpError, data: signUpData } = await supabase.auth.signUp({
@@ -128,6 +149,7 @@ export default function Frame(): React.ReactElement | null {
             return;
           }
           userSession = signUpData.session;
+          console.log('User signed up successfully');
         } else {
           console.error('Sign in error:', signInError.message);
           setError(signInError.message);
@@ -136,8 +158,10 @@ export default function Frame(): React.ReactElement | null {
         }
       } else {
         userSession = signInData.session;
+        console.log('User signed in successfully');
       }
       
+      console.log('Checking invitation code for email:', userEmail);
       // Check if user has a validated invitation code
       const { data: codeData, error: codeError } = await supabase
         .from('invitation_codes')
@@ -149,7 +173,10 @@ export default function Frame(): React.ReactElement | null {
         console.error('Invitation code check error:', codeError.message);
       }
       
+      console.log('Invitation code data:', codeData);
+      
       if (codeData) {
+        console.log('User has validated invitation code, checking onboarding...');
         // Check if user has completed onboarding
         const { data: onboardingData, error: onboardingError } = await supabase
           .from('onboarding_data')
@@ -160,6 +187,8 @@ export default function Frame(): React.ReactElement | null {
         if (onboardingError) {
           console.error('Onboarding check error:', onboardingError.message);
         }
+        
+        console.log('Onboarding data:', onboardingData);
         
         if (onboardingData) {
           console.log('User has completed onboarding, navigating to dashboard');
@@ -184,11 +213,14 @@ export default function Frame(): React.ReactElement | null {
     setIsOAuthProcessing(true);
     
     try {
-      // Use the current page as the redirect URL so OAuth comes back here
+      // Use environment variable for redirect URL or fallback to current origin
+      const redirectUrl = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin;
+      console.log('OAuth redirect URL:', redirectUrl);
+      
       const { error: googleError } = await supabase.auth.signInWithOAuth({ 
         provider: 'google',
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: `${redirectUrl}/`,
           queryParams: {
             access_type: 'offline',
             prompt: 'consent',
