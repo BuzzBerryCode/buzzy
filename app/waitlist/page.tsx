@@ -65,11 +65,11 @@ export default function Waitlist(): React.ReactElement | null {
   };
 
   const handleBackToLogin = () => {
-    router.push('/');
+    window.location.href = '/';
   };
 
   if (isSubmitted) {
-    router.push('/waitlist-success');
+    window.location.href = '/waitlist-success';
     return null;
   }
 

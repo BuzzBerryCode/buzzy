@@ -8,7 +8,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Redirect to discover page by default
-    router.push('/dashboard/discover');
+    window.location.href = '/dashboard/discover';
   }, [router]);
 
   return (

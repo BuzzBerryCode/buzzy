@@ -82,14 +82,14 @@ export default function Frame(): React.ReactElement | null {
 
                 if (onboardingData) {
                   console.log('User has completed onboarding, redirecting to dashboard');
-                  router.push('/dashboard');
+                  window.location.href = '/dashboard';
                 } else {
                   console.log('User needs to complete onboarding, redirecting to onboarding');
-                  router.push('/onboarding');
+                  window.location.href = '/onboarding';
                 }
               } else {
                 console.log('User does not have validated invitation code, redirecting to private-beta');
-                router.push('/private-beta');
+                window.location.href = '/private-beta';
               }
             } else {
               console.error('No user found after OAuth');
@@ -192,14 +192,14 @@ export default function Frame(): React.ReactElement | null {
         
         if (onboardingData) {
           console.log('User has completed onboarding, navigating to dashboard');
-          router.push('/dashboard');
+          window.location.href = '/dashboard';
         } else {
           console.log('User needs to complete onboarding, navigating to onboarding');
-          router.push('/onboarding');
+          window.location.href = '/onboarding';
         }
       } else {
         console.log('User does not have validated invitation code, navigating to /private-beta');
-        router.push('/private-beta');
+        window.location.href = '/private-beta';
       }
     } catch (err) {
       console.error('Unexpected error in handleContinue:', err);

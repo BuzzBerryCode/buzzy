@@ -269,14 +269,14 @@ const OnboardingFlow: React.FC = () => {
       
       // Navigate to dashboard after animation
       setTimeout(() => {
-        router.push('/dashboard');
+        window.location.href = '/dashboard';
       }, 1000);
     } catch (error) {
       console.error('Error in handleViewMatches:', error);
       // Still navigate even if there's an error
       setIsExiting(true);
       setTimeout(() => {
-        router.push('/dashboard');
+        window.location.href = '/dashboard';
       }, 1000);
     }
   };

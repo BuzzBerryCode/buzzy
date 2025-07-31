@@ -10,8 +10,8 @@ import { Card, CardContent } from "../components/ui/card";
 export default function WaitlistSuccess(): React.ReactElement | null {
   const router = useRouter();
 
-  const handleBackToLogin = () => {
-    router.push('/');
+  const handleBackToHome = () => {
+    window.location.href = '/';
   };
 
   return (
@@ -55,7 +55,7 @@ export default function WaitlistSuccess(): React.ReactElement | null {
             </div>
             
             <Button
-              onClick={handleBackToLogin}
+              onClick={handleBackToHome}
               className="w-full h-11 text-sm font-semibold"
             >
               Back to login
@@ -120,7 +120,7 @@ export default function WaitlistSuccess(): React.ReactElement | null {
             <Card className="border-0 shadow-none">
               <CardContent className="p-0">
                 <Button
-                  onClick={handleBackToLogin}
+                  onClick={handleBackToHome}
                   className="w-full h-12 text-base font-semibold"
                 >
                   Back to login

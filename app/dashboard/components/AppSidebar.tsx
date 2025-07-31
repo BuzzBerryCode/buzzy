@@ -50,9 +50,9 @@ export function AppSidebar() {
     return () => window.removeEventListener("resize", handleResize);
   }, [isCollapsed, toggleCollapse]);
 
-  const handleSignOut = async () => {
+  const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push('/');
+    window.location.href = '/';
   };
 
   const navItems = [
@@ -282,7 +282,7 @@ export function AppSidebar() {
                 <Button
                   variant="ghost"
                   size="icon"
-                  onClick={handleSignOut}
+                  onClick={handleLogout}
                   className="h-8 w-8"
                 >
                   <LogOut className="h-5 w-5 text-gray-500" />

@@ -21,7 +21,7 @@ export default function PrivateBeta(): React.ReactElement | null {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
       if (!session) {
-        router.push('/');
+        window.location.href = '/';
       }
     };
     getSession();
@@ -29,7 +29,7 @@ export default function PrivateBeta(): React.ReactElement | null {
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
       if (!session) {
-        router.push('/');
+        window.location.href = '/';
       }
     });
     return () => {
@@ -38,12 +38,12 @@ export default function PrivateBeta(): React.ReactElement | null {
   }, [router]);
 
   const handleJoinWaitlist = () => {
-    router.push('/waitlist');
+    window.location.href = '/waitlist';
   };
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    router.push('/');
+    window.location.href = '/';
   };
 
   const handleInvitationSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -65,7 +65,7 @@ export default function PrivateBeta(): React.ReactElement | null {
       .from('invitation_codes')
       .update({ used: true, assigned_email: session.user.email })
       .eq('id', codeData.id);
-    router.push('/onboarding');
+    window.location.href = '/onboarding';
   };
 
   if (!session) {
