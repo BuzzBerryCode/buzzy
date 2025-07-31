@@ -7,31 +7,49 @@ import { supabase } from '@/lib/supabaseClient';
 export default function DashboardPage() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    const checkUser = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
+    // Get initial session
+    const getInitialSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(session.user);
+      } else {
         router.push('/');
         return;
       }
-      setUser(user);
-      setLoading(false);
+      setIsLoading(false);
     };
 
-    checkUser();
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (event === 'SIGNED_IN' && session?.user) {
+          setUser(session.user);
+          setIsLoading(false);
+        } else if (event === 'SIGNED_OUT') {
+          router.push('/');
+        }
+      }
+    );
+
+    getInitialSession();
+
+    return () => subscription.unsubscribe();
   }, [router]);
 
-  if (loading) {
+  // Show minimal placeholder while loading to avoid white page
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading dashboard...</p>
-        </div>
+      <div className="min-h-screen bg-gray-100">
+        {/* Minimal placeholder - just background color */}
       </div>
     );
+  }
+
+  if (!user) {
+    return null;
   }
 
   return (

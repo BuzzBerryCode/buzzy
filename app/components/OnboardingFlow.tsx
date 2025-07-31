@@ -148,165 +148,6 @@ const LoadingAnimation: React.FC<{ onComplete: () => void }> = ({ onComplete }) 
   );
 };
 
-const WebsiteLoadingAnimation: React.FC<{ onComplete: () => void }> = ({ onComplete }) => {
-  const [currentStep, setCurrentStep] = useState(0);
-  const [currentIcon, setCurrentIcon] = useState<React.ComponentType<any>>(Globe);
-  
-  const steps = [
-    { icon: Globe, text: "Scanning website", duration: 1000 },
-    { icon: Users, text: "Analyzing audience", duration: 1000 },
-    { icon: TrendingUp, text: "Finding matches", duration: 1000 }
-  ];
-
-  useEffect(() => {
-    const stepTimer = setInterval(() => {
-      setCurrentStep(prev => {
-        const nextStep = prev + 1;
-        if (nextStep < steps.length) {
-          setCurrentIcon(steps[nextStep].icon);
-          return nextStep;
-        } else {
-          clearInterval(stepTimer);
-          setTimeout(onComplete, 500);
-          return prev;
-        }
-      });
-    }, 1000);
-
-    return () => clearInterval(stepTimer);
-  }, [onComplete]);
-
-  return (
-    <motion.div 
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      className="text-center px-6 flex flex-col justify-center h-full"
-    >
-      {/* Enhanced loading animation with changing icons */}
-      <motion.div 
-        className="relative w-20 h-20 mx-auto mb-6"
-        initial={{ scale: 0.8 }}
-        animate={{ scale: 1 }}
-        transition={{ duration: 0.5 }}
-      >
-        {/* White background circle */}
-        <motion.div
-          className="absolute inset-0 bg-white rounded-full shadow-lg"
-          animate={{ 
-            scale: [1, 1.05, 1],
-          }}
-          transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-        />
-        
-        {/* Outer rotating ring */}
-        <motion.div
-          animate={{ rotate: 360 }}
-          transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-          className="absolute inset-0 rounded-full border-2 border-purple-400/40"
-        />
-        
-        {/* Progress ring */}
-        <motion.div
-          className="absolute inset-1 rounded-full border-2 border-transparent"
-          style={{
-            borderTopColor: '#a855f7',
-            borderRightColor: currentStep >= 1 ? '#a855f7' : 'transparent',
-            borderBottomColor: currentStep >= 2 ? '#a855f7' : 'transparent',
-          }}
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-        />
-        
-        {/* Floating progress dots */}
-        <motion.div
-          className="absolute inset-0 rounded-full"
-        >
-          {steps.map((_, i) => (
-            <motion.div
-              key={i}
-              className={`absolute w-2 h-2 rounded-full ${
-                i <= currentStep ? 'bg-purple-500' : 'bg-purple-300'
-              }`}
-              style={{
-                top: '50%',
-                left: '50%',
-                transform: `translate(-50%, -50%) rotate(${i * 120}deg) translateY(-28px)`
-              }}
-              animate={{
-                scale: i <= currentStep ? [1, 1.3, 1] : 1,
-              }}
-              transition={{
-                duration: 1,
-                repeat: Infinity,
-                ease: "easeInOut"
-              }}
-            />
-          ))}
-        </motion.div>
-        
-        {/* Central changing icon */}
-        <motion.div
-          className="absolute inset-4 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center"
-          key={currentStep}
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.3 }}
-        >
-          <motion.div
-            animate={{ rotate: [0, 5, -5, 0] }}
-            transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 1 }}
-          >
-            {React.createElement(currentIcon, { className: "w-6 h-6 text-white" })}
-          </motion.div>
-        </motion.div>
-      </motion.div>
-      
-      <motion.h3 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.5 }}
-        className="text-xl font-bold text-gray-900 mb-3"
-      >
-        {steps[currentStep]?.text || "Finding your perfect creators"}
-      </motion.h3>
-      
-      <motion.p 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.7 }}
-        className="text-gray-600 text-sm max-w-sm mx-auto mb-6 leading-relaxed"
-      >
-        Our AI is analyzing your brand to find creators who perfectly match your style and audience.
-      </motion.p>
-      
-      {/* Progress indicators */}
-      <motion.div 
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="flex justify-center space-x-2"
-      >
-        {steps.map((_, i) => (
-          <motion.div
-            key={i}
-            className={`w-2 h-2 rounded-full transition-all duration-300 ${
-              i <= currentStep ? 'bg-purple-500' : 'bg-gray-300'
-            }`}
-            animate={i === currentStep ? {
-              scale: [1, 1.2, 1],
-            } : {}}
-            transition={i === currentStep ? {
-              duration: 1,
-              repeat: Infinity,
-              ease: "easeInOut"
-            } : {}}
-          />
-        ))}
-      </motion.div>
-    </motion.div>
-  );
-};
-
 interface FormData {
   niche: string;
   website: string;
@@ -318,7 +159,6 @@ const OnboardingFlow: React.FC = () => {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(0);
   const [logoAnimationComplete, setLogoAnimationComplete] = useState(false);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isExiting, setIsExiting] = useState(false);
   const [isSearchActive, setIsSearchActive] = useState(false);
   const [formData, setFormData] = useState<FormData>({
@@ -384,7 +224,7 @@ const OnboardingFlow: React.FC = () => {
 
   const handleNext = () => {
     if (currentStep === 2 && formData.website) {
-      setIsAnalyzing(true);
+      setCurrentStep(currentStep + 1);
       return;
     }
     if (currentStep < totalSteps - 1) {
@@ -400,11 +240,6 @@ const OnboardingFlow: React.FC = () => {
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const handleWebsiteAnalysisComplete = () => {
-    setIsAnalyzing(false);
-    setCurrentStep(currentStep + 1);
   };
 
   const handleViewMatches = async () => {
@@ -607,9 +442,6 @@ const OnboardingFlow: React.FC = () => {
         );
 
       case 2:
-        if (isAnalyzing) {
-          return <WebsiteLoadingAnimation onComplete={handleWebsiteAnalysisComplete} />;
-        }
         return (
           <motion.div 
             initial={{ opacity: 0, x: 50 }}

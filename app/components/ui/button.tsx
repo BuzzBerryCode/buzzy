@@ -9,12 +9,12 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        default: "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700 shadow-lg hover:shadow-xl transform hover:scale-105",
-        secondary: "bg-white/20 backdrop-blur-md text-gray-700 border border-white/30 hover:bg-white/30 shadow-lg hover:shadow-xl transform hover:scale-105",
+        default: "bg-gradient-to-r from-blue-500 to-purple-600 text-white hover:from-blue-600 hover:to-purple-700",
+        secondary: "bg-white/20 backdrop-blur-md text-gray-700 border border-white/30 hover:bg-white/30",
         ghost: "hover:bg-white/10 hover:text-gray-900",
         outline: "bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 hover:border-gray-400 transition-all duration-200",
-        option: "bg-white/80 backdrop-blur-md border border-white/40 text-gray-800 hover:bg-white/90 hover:border-blue-300 hover:shadow-lg transform hover:scale-102 transition-all duration-200",
-        selected: "bg-gradient-to-r from-blue-500/20 to-purple-600/20 backdrop-blur-md border-2 border-blue-400 text-blue-700 shadow-lg scale-102"
+        option: "bg-white/80 backdrop-blur-md border border-white/40 text-gray-800 hover:bg-white/90 hover:border-blue-300 transition-all duration-200",
+        selected: "bg-gradient-to-r from-blue-500/20 to-purple-600/20 backdrop-blur-md border-2 border-blue-400 text-blue-700"
       },
       size: {
         default: "h-12 px-6 py-3",

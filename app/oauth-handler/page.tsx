@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { supabase } from '@/lib/supabaseClient';
 
 export default function OAuthHandler() {
   const router = useRouter();
+  const [isProcessing, setIsProcessing] = useState(true);
 
   useEffect(() => {
     const handleOAuthRedirect = async () => {
@@ -39,35 +40,44 @@ export default function OAuthHandler() {
 
           console.log('Session set successfully');
           
-          // Check if user has invitation code and redirect accordingly
-          const { data: { user } } = await supabase.auth.getUser();
-          if (user) {
-            const { data: codeData } = await supabase
-              .from('invitation_codes')
-              .select('*')
-              .eq('assigned_email', user.email)
-              .eq('used', true)
-              .maybeSingle();
-
-            if (codeData) {
-              // Check if user has completed onboarding
-              const { data: onboardingData } = await supabase
-                .from('onboarding_data')
+          // Wait a moment for session to be fully set, then check user
+          setTimeout(async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+              console.log('User found:', user.email);
+              
+              // Check if user has invitation code and redirect accordingly
+              const { data: codeData } = await supabase
+                .from('invitation_codes')
                 .select('*')
-                .eq('user_id', user.id)
+                .eq('assigned_email', user.email)
+                .eq('used', true)
                 .maybeSingle();
 
-              if (onboardingData) {
-                router.push('/dashboard');
+              if (codeData) {
+                // Check if user has completed onboarding
+                const { data: onboardingData } = await supabase
+                  .from('onboarding_data')
+                  .select('*')
+                  .eq('user_id', user.id)
+                  .maybeSingle();
+
+                if (onboardingData) {
+                  console.log('User has completed onboarding, redirecting to dashboard');
+                  router.push('/dashboard');
+                } else {
+                  console.log('User needs onboarding, redirecting to onboarding');
+                  router.push('/onboarding');
+                }
               } else {
-                router.push('/onboarding');
+                console.log('User needs invitation code, redirecting to private-beta');
+                router.push('/private-beta');
               }
             } else {
-              router.push('/private-beta');
+              console.log('No user found after session set');
+              router.push('/');
             }
-          } else {
-            router.push('/');
-          }
+          }, 100); // Small delay to ensure session is set
         } catch (error) {
           console.error('Error in OAuth handler:', error);
           router.push('/');
@@ -78,15 +88,21 @@ export default function OAuthHandler() {
       }
     };
 
+    // Add a fallback timeout to prevent getting stuck
+    const timeout = setTimeout(() => {
+      console.log('OAuth handler timeout, redirecting to home');
+      router.push('/');
+    }, 5000); // 5 second timeout
+
     handleOAuthRedirect();
+
+    return () => clearTimeout(timeout);
   }, [router]);
 
+  // Show minimal placeholder while processing to avoid white page
   return (
-    <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-      <div className="text-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-purple-500 mx-auto"></div>
-        <p className="mt-4 text-gray-600">Processing authentication...</p>
-      </div>
+    <div className="min-h-screen bg-gray-100">
+      {/* Minimal placeholder - just background color */}
     </div>
   );
 } 

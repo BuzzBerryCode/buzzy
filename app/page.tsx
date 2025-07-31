@@ -20,6 +20,79 @@ export default function Frame(): React.ReactElement | null {
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
+  const [isOAuthProcessing, setIsOAuthProcessing] = React.useState(false);
+
+  // Handle OAuth redirect logic
+  React.useEffect(() => {
+    const handleOAuthRedirect = async () => {
+      // Check if we're returning from OAuth (URL has hash fragment)
+      const hash = window.location.hash.substring(1);
+      if (hash) {
+        setIsOAuthProcessing(true);
+        const params = new URLSearchParams(hash);
+        
+        const accessToken = params.get('access_token');
+        const refreshToken = params.get('refresh_token');
+        
+        if (accessToken && refreshToken) {
+          try {
+            // Set the session with the tokens
+            const { error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
+
+            if (error) {
+              console.error('Error setting session:', error);
+              setError('Authentication failed. Please try again.');
+              setIsOAuthProcessing(false);
+              return;
+            }
+
+            // Get user and check invitation code/onboarding status
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+              const { data: codeData } = await supabase
+                .from('invitation_codes')
+                .select('*')
+                .eq('assigned_email', user.email)
+                .eq('used', true)
+                .maybeSingle();
+
+              if (codeData) {
+                // Check if user has completed onboarding
+                const { data: onboardingData } = await supabase
+                  .from('onboarding_data')
+                  .select('*')
+                  .eq('user_id', user.id)
+                  .maybeSingle();
+
+                if (onboardingData) {
+                  router.push('/dashboard');
+                } else {
+                  router.push('/onboarding');
+                }
+              } else {
+                router.push('/private-beta');
+              }
+            } else {
+              setError('Authentication failed. Please try again.');
+              setIsOAuthProcessing(false);
+            }
+          } catch (error) {
+            console.error('Error in OAuth redirect:', error);
+            setError('Authentication failed. Please try again.');
+            setIsOAuthProcessing(false);
+          }
+        } else {
+          setError('Authentication failed. Please try again.');
+          setIsOAuthProcessing(false);
+        }
+      }
+    };
+
+    handleOAuthRedirect();
+  }, [router]);
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -64,6 +137,7 @@ export default function Frame(): React.ReactElement | null {
       } else {
         userSession = signInData.session;
       }
+      
       // Check if user has a validated invitation code
       const { data: codeData, error: codeError } = await supabase
         .from('invitation_codes')
@@ -74,7 +148,7 @@ export default function Frame(): React.ReactElement | null {
       if (codeError) {
         console.error('Invitation code check error:', codeError.message);
       }
-      setLoading(false);
+      
       if (codeData) {
         // Check if user has completed onboarding
         const { data: onboardingData, error: onboardingError } = await supabase
@@ -107,26 +181,32 @@ export default function Frame(): React.ReactElement | null {
 
   const handleGoogleSignIn = async () => {
     setError(null);
-    setLoading(true);
+    setIsOAuthProcessing(true);
     
-    // Try to use a custom redirect URL that should work with the current Supabase settings
-    const { error: googleError } = await supabase.auth.signInWithOAuth({ 
-      provider: 'google',
-      options: {
-        redirectTo: `${window.location.origin}/oauth-handler`,
-        queryParams: {
-          access_type: 'offline',
-          prompt: 'consent',
+    try {
+      // Use the current page as the redirect URL so OAuth comes back here
+      const { error: googleError } = await supabase.auth.signInWithOAuth({ 
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          }
         }
+      });
+      
+      if (googleError) {
+        setError(googleError.message);
+        setIsOAuthProcessing(false);
+        return;
       }
-    });
-    
-    if (googleError) {
-      setError(googleError.message);
-      setLoading(false);
-      return;
+      // Don't set loading to false here - let the OAuth redirect handle it
+    } catch (error) {
+      console.error('Google sign in error:', error);
+      setError('An unexpected error occurred. Please try again.');
+      setIsOAuthProcessing(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -181,7 +261,7 @@ export default function Frame(): React.ReactElement | null {
               variant="outline"
               className="w-full h-11 flex items-center justify-center gap-3 px-4 py-2 rounded-xl border border-[#d266a3] hover:bg-gray-50 transition-all duration-200 hover:scale-[1.02] mb-4"
               onClick={handleGoogleSignIn}
-              disabled={loading}
+              disabled={loading || isOAuthProcessing}
             >
               <img
                 className="w-6 h-6 object-contain"
@@ -193,7 +273,7 @@ export default function Frame(): React.ReactElement | null {
                 }}
               />
               <span className="font-medium text-[#545454] text-base">
-                Sign In With Google
+                {isOAuthProcessing ? 'Signing in...' : 'Sign In With Google'}
               </span>
             </Button>
             {/* Error message */}
@@ -222,6 +302,7 @@ export default function Frame(): React.ReactElement | null {
                   onChange={e => handleInputChange('email', e.target.value)}
                   placeholder="please enter your email"
                   className="h-[42px] px-3 py-2 bg-[#f8f9fa] rounded-xl border border-[#e9ecef] font-medium text-sm focus:ring-2 focus:ring-[#d266a3] focus:border-[#d266a3] focus:bg-white transition-all shadow-sm"
+                  disabled={isOAuthProcessing}
                 />
               </div>
               {/* Password field */}
@@ -236,12 +317,14 @@ export default function Frame(): React.ReactElement | null {
                     onChange={e => handleInputChange('password', e.target.value)}
                     placeholder="choose your password"
                     className="h-[42px] px-3 py-2 pr-10 bg-[#f8f9fa] rounded-xl border border-[#e9ecef] font-medium text-sm focus:ring-2 focus:ring-[#d266a3] focus:border-[#d266a3] focus:bg-white transition-all shadow-sm"
+                    disabled={isOAuthProcessing}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(v => !v)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-500 cursor-pointer hover:text-gray-700 transition-colors"
                     tabIndex={-1}
+                    disabled={isOAuthProcessing}
                   >
                     {showPassword ? <EyeIcon className="w-4 h-4" /> : <EyeOffIcon className="w-4 h-4" />}
                   </button>
@@ -252,7 +335,7 @@ export default function Frame(): React.ReactElement | null {
             <Button 
               onClick={handleContinue}
               className="w-full h-12 bg-[#d266a3] hover:bg-[#c15594] rounded-xl font-medium text-white text-base transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl mb-3"
-              disabled={loading}
+              disabled={loading || isOAuthProcessing}
             >
               {loading ? 'Loading...' : 'Continue'}
             </Button>
@@ -322,7 +405,7 @@ export default function Frame(): React.ReactElement | null {
                     variant="outline"
                     className="w-full h-11 flex items-center justify-center gap-3 px-5 py-2 rounded-lg border border-[#d266a3] hover:bg-gray-50 transition-all duration-200 hover:scale-[1.02]"
                     onClick={handleGoogleSignIn}
-                    disabled={loading}
+                    disabled={loading || isOAuthProcessing}
                   >
                     <img
                       className="w-6 h-6 object-contain"
@@ -334,7 +417,7 @@ export default function Frame(): React.ReactElement | null {
                       }}
                     />
                     <span className="font-medium text-[#545454] text-base">
-                      Sign In With Google
+                      {isOAuthProcessing ? 'Signing in...' : 'Sign In With Google'}
                     </span>
                   </Button>
                   {/* Error message */}
@@ -361,6 +444,7 @@ export default function Frame(): React.ReactElement | null {
                         onChange={e => handleInputChange('email', e.target.value)}
                         placeholder="please enter your email"
                         className="h-[50px] px-4 py-3 bg-[#f8f9fa] rounded-xl border border-[#e9ecef] font-medium text-base focus:ring-2 focus:ring-[#d266a3] focus:border-[#d266a3] focus:bg-white transition-all shadow-sm"
+                        disabled={isOAuthProcessing}
                       />
                     </div>
                     {/* Password field */}
@@ -375,12 +459,14 @@ export default function Frame(): React.ReactElement | null {
                           onChange={e => handleInputChange('password', e.target.value)}
                           placeholder="choose your password"
                           className="h-[50px] px-4 py-3 pr-12 bg-[#f8f9fa] rounded-xl border border-[#e9ecef] font-medium text-base focus:ring-2 focus:ring-[#d266a3] focus:border-[#d266a3] focus:bg-white transition-all shadow-sm"
+                          disabled={isOAuthProcessing}
                         />
                         <button
                           type="button"
                           onClick={() => setShowPassword(v => !v)}
                           className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-500 cursor-pointer hover:text-gray-700 transition-colors"
                           tabIndex={-1}
+                          disabled={isOAuthProcessing}
                         >
                           {showPassword ? <EyeIcon className="w-5 h-5" /> : <EyeOffIcon className="w-5 h-5" />}
                         </button>
@@ -390,7 +476,7 @@ export default function Frame(): React.ReactElement | null {
                     <Button 
                       onClick={handleContinue}
                       className="w-full h-[50px] bg-[#d266a3] hover:bg-[#c15594] rounded-xl font-medium text-white text-base transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
-                      disabled={loading}
+                      disabled={loading || isOAuthProcessing}
                     >
                       {loading ? 'Loading...' : 'Continue'}
                     </Button>

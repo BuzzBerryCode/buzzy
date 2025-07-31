@@ -1,4 +1,4 @@
-// File: /Users/odinlund/Desktop/BuzzBerry/Code/BuzzBerry-V1/buzzberry-login/app/dashboard/page.tsx
+// File: /Users/odinlund/Desktop/BuzzBerry/Code/BuzzBerry Modular Flow/auth-onboarding-next.js/app/dashboard/page.tsx
 import * as entry from '../../../../app/dashboard/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 

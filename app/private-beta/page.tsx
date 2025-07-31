@@ -13,7 +13,6 @@ import { supabase } from '../lib/supabaseClient';
 export default function PrivateBeta(): React.ReactElement | null {
   const router = useRouter();
   const [session, setSession] = React.useState<any>(null);
-  const [loading, setLoading] = React.useState(true);
   const [invitationCode, setInvitationCode] = React.useState('');
   const [error, setError] = React.useState<string | null>(null);
 
@@ -21,17 +20,22 @@ export default function PrivateBeta(): React.ReactElement | null {
     const getSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       setSession(session);
-      setLoading(false);
+      if (!session) {
+        router.push('/');
+      }
     };
     getSession();
     // Listen for auth changes
     const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setSession(session);
+      if (!session) {
+        router.push('/');
+      }
     });
     return () => {
       listener?.subscription.unsubscribe();
     };
-  }, []);
+  }, [router]);
 
   const handleJoinWaitlist = () => {
     router.push('/waitlist');
@@ -45,7 +49,6 @@ export default function PrivateBeta(): React.ReactElement | null {
   const handleInvitationSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
-    setLoading(true);
     // Validate invitation code
     const { data: codeData, error: codeError } = await supabase
       .from('invitation_codes')
@@ -55,7 +58,6 @@ export default function PrivateBeta(): React.ReactElement | null {
       .single();
     if (codeError || !codeData) {
       setError('Invalid or already used invitation code.');
-      setLoading(false);
       return;
     }
     // Mark invitation code as used
@@ -63,16 +65,11 @@ export default function PrivateBeta(): React.ReactElement | null {
       .from('invitation_codes')
       .update({ used: true, assigned_email: session.user.email })
       .eq('id', codeData.id);
-    setLoading(false);
     router.push('/onboarding');
   };
 
-  if (loading) {
-    return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
-  }
-
   if (!session) {
-    router.push('/');
+    // Don't render anything until session is valid
     return null;
   }
 
@@ -135,8 +132,8 @@ export default function PrivateBeta(): React.ReactElement | null {
                 />
               </div>
               {!!error && <div className="text-red-500 text-xs mb-2 text-center">{error}</div>}
-              <Button type="submit" className="w-full h-11 bg-[#d266a3] hover:bg-[#c15594] rounded-xl font-medium text-white text-base transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl mb-4" disabled={loading}>
-                {loading ? 'Loading...' : 'Continue'}
+              <Button type="submit" className="w-full h-11 bg-[#d266a3] hover:bg-[#c15594] rounded-xl font-medium text-white text-base transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl mb-4" disabled={false}>
+                Continue
               </Button>
             </form>
 
@@ -265,9 +262,9 @@ export default function PrivateBeta(): React.ReactElement | null {
                     <Button
                       type="submit"
                       className="w-full h-[47px] bg-[#d266a3] hover:bg-[#c15594] rounded-lg font-medium text-white text-base transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] shadow-lg hover:shadow-xl"
-                      disabled={loading}
+                      disabled={false}
                     >
-                      {loading ? 'Loading...' : 'Continue'}
+                      Continue
                     </Button>
                     {/* Divider */}
                     <div className="flex items-center justify-center gap-4">
